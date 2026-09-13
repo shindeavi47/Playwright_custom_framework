@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validation Results</title>
+  <link rel="stylesheet" href="validation-results.css">
+</head>
+<body>
+  <main class="report-shell">
+    <header class="report-header">
+      <p class="eyebrow">Playwright custom framework</p>
+      <h1>Validation Results</h1>
+      <p id="report-status" class="report-status">Loading results...</p>
+    </header>
+
+    <section class="table-panel" aria-label="Validation results table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Scenario</th>
+            <th scope="col">Result</th>
+            <th scope="col">Timelaps</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </section>
+  </main>
+  <script type="module" src="validation-results.js"></script>
+</body>
+</html>
