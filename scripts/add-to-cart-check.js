@@ -7,52 +7,71 @@ import { resetValidationResults } from '../utils/validation-results.js';
 //#region Browser and page setup
 const browser = await chromium.launch({
   headless: false,
+  channel: 'chrome',
   args: ['--start-maximized']
 });
 
-const page = await browser.newPage();
+const context = await browser.newContext();
+const page = await context.newPage();
 const pageActions = new PageActions(page);
 await resetValidationResults();
 //#endregion
 
 //#region Dialog handling
-page.on('dialog', async (dialog) => {
-  if (dialog.type() === 'alert') {
-    console.log(`Accepted warning: ${dialog.message()}`);
-  }
-  await dialog.accept();
-});
+// page.on('dialog', async (dialog) => {
+//   if (dialog.type() === 'alert') {
+//     console.log(`Accepted warning: ${dialog.message()}`);
+//   }
+//   await dialog.accept();
+// });
 //#endregion
 
 //#region Add-to-cart validation
 try {
   await page.goto('https://www.saucedemo.com/', { waitUntil: 'networkidle' });
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await page.getByPlaceholder('Username').fill('standard_user');
+  await page.getByPlaceholder('Password').fill('secret_sauce');
+  await page.getByRole('button', { name: 'Login', exact: true }).click();
 
-  await Promise.all([
-    page.waitForLoadState('networkidle'),
-    pageActions.loginPage('standard_user', 'secret_sauce')
-  ]);
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // const okButton = page.getByRole('button', { name: 'OK', exact: true });
+  // if (await okButton.count()) {
+  //   await okButton.first().click();
+  // }
 
-  const okButtonFound = await page.locator('button').evaluateAll(
-    (buttons) => buttons.some((button) => button.textContent.trim() === 'OK')
+  // await page.getByRole('button', { name: 'Add to cart', exact: true }).first().click();
+
+  // await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  await pageActions.validateByRole('Adds Sauce Labs Backpack to the cart',
+    'button',
+    'Add to cart',
+    page.getByRole('button', { name: 'Remove', exact: true }),
+    'Remove'
   );
-  if (okButtonFound) {
-    await page.locator('button').filter({ hasText: 'OK' }).first().click();
-  }
 
-  await pageActions.validateAction('Adds Sauce Labs Backpack to the cart', 'add-to-cart-sauce-labs-backpack', [{ element: '#remove-sauce-labs-backpack' }]);
+  await pageActions.validateByRole('Validates cart badge count',
+    null,
+    null,
+    page.locator('[data-test="shopping-cart-badge"]'),
+    '2'
+  );
 
-  await pageActions.validateAction('Validates cart badge count', null, [{ element: '.shopping_cart_badge', value: '1' }]);
+  await page.locator('[data-test="shopping-cart-link"]').click();
 
-  await pageActions.validateAction('Opens the shopping cart', 'shopping_cart_container', [{ element: '[data-test="inventory-item"]' }]);
+  await pageActions.validateByRole('Opens the shopping cart',
+    null,
+    null,
+    page.locator('[data-test="title"]'),
+    'Your Cart'
+  );
 
-  await pageActions.validateAction('Validates Sauce Labs Backpack in the cart', null, [{ element: '[data-test="inventory-item-name"]', value: 'Sauce Labs Backpack' }]);
+  await pageActions.validateByRole('Validates Sauce Labs Backpack in the cart',
+    null,
+    null,
+    page.getByText('Sauce Labs Backpack', { exact: true }),
+    'Sauce Labs Backpack'
+  );
 
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  console.log('Item added to cart successfully.');
 } finally {
   await browser.close();
 }
