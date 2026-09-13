@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import { PageActions } from '../pages/page-actions.js';
+import { resetValidationResults } from '../utils/validation-results.js';
 
 const browser = await chromium.launch({
   headless: false,
@@ -8,17 +9,22 @@ const browser = await chromium.launch({
 
 const page = await browser.newPage();
 const pageActions = new PageActions(page);
-await page.goto('https://www.saucedemo.com/', { waitUntil: 'networkidle' });
-await new Promise((resolve) => setTimeout(resolve, 5000));
+await resetValidationResults();
 
-await pageActions.loginPage('standard_user', 'secret_sauce');
-await Promise.all([
-  page.waitForLoadState('networkidle'),
-  pageActions.click('login-button')
-]);
-await new Promise((resolve) => setTimeout(resolve, 5000));
+try {
+  await page.goto('https://www.saucedemo.com/', { waitUntil: 'networkidle' });
+  await page.getByPlaceholder('Username').fill('standard_user');
+  await page.getByPlaceholder('Password').fill('secret_sauce');
 
-const title = await page.title();
-console.log(`Page title: ${title}`);
+  await pageActions.validateByRole(
+    'Validates successful login',
+    'button',
+    'Login',
+    page.getByText('Products', { exact: true }),
+    'Products'
+  );
 
-await browser.close();
+  console.log(`Login successful: ${page.url()}`);
+} finally {
+  await browser.close();
+}

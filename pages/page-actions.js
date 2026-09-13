@@ -1,104 +1,45 @@
 import { addValidationResult } from '../utils/validation-results.js';
 
-function selectorForId(id) {
-  if (typeof id !== 'string' || id.trim() === '') {
-    throw new Error('An element id is required.');
-  }
-
-  return `#${id}`;
-}
-
 export class PageActions {
   constructor(page) {
     this.page = page;
   }
 
-  async loginPage(username, password) {
-    await this.type('user-name', username);
-    await this.type('password', password);
-    await this.click('login-button');
-  }
-
-  async perform(id, action, text = '') {
-    const selector = selectorForId(id);
-    const locator = this.page.locator(selector);
-
-    await locator.waitFor();
-
-    switch (action) {
-      case 'type':
-        if (typeof text !== 'string') {
-          throw new Error('Text is required for the type action.');
-        }
-        await locator.fill(text);
-        break;
-      case 'click':
-        await locator.click();
-        break;
-      default:
-        throw new Error(`Unsupported action: ${action}`);
-    }
-  }
-
-  async type(id, text) {
-    return this.perform(id, 'type', text);
-  }
-
-  async click(id) {
-    return this.perform(id, 'click');
-  }
-
-  async validateAction(scenario, clickId, checks, timeoutMs = 30000) {
-    if (!Array.isArray(checks) || checks.length === 0) {
-      throw new Error('At least one validation check is required.');
-    }
-
-    let passed = false;
+  async validateByRole(scenario, roleType, roleName, elementToCheck, elementValue, timeoutMs = 30000,
+  ) {
+    let result = 'FAIL';
     const startedAt = Date.now();
     try {
-      if (clickId) {
-        await this.click(clickId);
+      if (!elementToCheck || typeof elementToCheck.textContent !== 'function') {
+        throw new Error('A locator is required for elementToCheck.');
+      }
+      if ((roleType && !roleName) || (!roleType && roleName)) {
+        throw new Error('Both roleType and roleName are required to perform an action.');
       }
 
-      for (const check of checks) {
-        if (!check || typeof check.element !== 'string' || check.element.trim() === '') {
-          throw new Error('Each validation check requires an element selector.');
-        }
-        if (check.clickId) {
-          await this.click(check.clickId);
-        }
-
-        const locator = this.page.locator(check.element);
-        await locator.waitFor();
-        if (check.value !== undefined) {
-          const actualValue = (await locator.textContent()).trim();
-          if (actualValue !== check.value) {
-            throw new Error(
-              `Expected "${check.value}" for ${check.element}, but found "${actualValue}".`
-            );
-          }
-        }
+      if (roleType && roleName) {
+        await this.page.getByRole(roleType, { name: roleName, exact: true }).first().click({ timeout: timeoutMs });
       }
 
-      passed = true;
+      const actualValue = (await elementToCheck.textContent({ timeout: timeoutMs })).trim();
+      result = actualValue === elementValue ? 'PASS' : 'FAIL';
+      console.log(
+        result === 'PASS'
+          ? `Validation passed for scenario "${scenario}".`
+          : `Validation failed for scenario "${scenario}". Expected "${elementValue}" for "${elementToCheck}" but found "${actualValue}".`
+      );
       return true;
+    } catch (error) {
+      console.error(`Validation error for scenario "${scenario}":`, error);
+      result = 'ERROR';
     } finally {
-      await this.writeValidationResult(scenario, passed, startedAt, timeoutMs);
+      await this.writeValidationResult(scenario, result, startedAt, timeoutMs);
     }
   }
 
-  async writeValidationResult(scenario, passed, startedAt, timeoutMs = 30000) {
+  async writeValidationResult(scenario, result, startedAt, timeoutMs = 30000) {
     const elapsedMs = Date.now() - startedAt;
-    let result;
-
-    if (elapsedMs >= timeoutMs) {
-      result = 'TIMEOUT';
-    } else if (passed) {
-      result = 'PASS';
-    } else {
-      result = 'FAIL';
-    }
-
-    await addValidationResult(result, scenario, elapsedMs);
+    const finalResult = elapsedMs >= timeoutMs ? 'TIMEOUT' : result;
+    await addValidationResult(scenario, finalResult, elapsedMs);
   }
 }

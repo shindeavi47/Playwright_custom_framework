@@ -1,5 +1,5 @@
 {
-  "name": "playwright",
+  "name": "playwright_custom_framework",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -8,11 +8,19 @@
     "test": "tests"
   },
   "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shindeavi47/Playwright_custom_framework.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shindeavi47/Playwright_custom_framework/issues"
+  },
+  "homepage": "https://github.com/shindeavi47/Playwright_custom_framework#readme",
   "devDependencies": {
     "@playwright/test": "^1.63.0",
-    "@types/node": "^26.5.0"
+    "@types/node": "^22.20.2"
   }
 }

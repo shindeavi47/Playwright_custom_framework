@@ -13,8 +13,8 @@ function escapeXml(value) {
     .replaceAll("'", '&apos;');
 }
 
-export async function addValidationResult(result, scenario, elapsedMs) {
-  if (!['PASS', 'FAIL', 'TIMEOUT'].includes(result)) {
+export async function addValidationResult(scenario, result, elapsedMs) {
+  if (!['PASS', 'FAIL', 'TIMEOUT', 'ERROR'].includes(result)) {
     throw new Error(`Unsupported validation result: ${result}`);
   }
   if (typeof scenario !== 'string' || scenario.trim() === '') {
@@ -35,8 +35,8 @@ export async function addValidationResult(result, scenario, elapsedMs) {
 
   const entry = [
     '  <VALIDATION>',
-    `    <RESUTL>${escapeXml(result)}</RESUTL>`,
     `    <SCENARIO>${escapeXml(scenario)}</SCENARIO>`,
+    `    <RESUTL>${escapeXml(result)}</RESUTL>`,
     `    <TIMELAPS>${escapeXml(`${elapsedMs} ms`)}</TIMELAPS>`,
     '  </VALIDATION>'
   ].join('\n');
