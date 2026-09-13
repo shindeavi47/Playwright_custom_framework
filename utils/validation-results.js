@@ -2,7 +2,11 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const reportPath = path.resolve('../reports', 'validation-results.xml');
-const emptyReport = '<?xml version="1.0" encoding="UTF-8"?><VALIDATION_RESULTS></VALIDATION_RESULTS>';
+const emptyReport = [
+  '<?xml version="1.0" encoding="UTF-8"?>',
+  '<VALIDATION_RESULTS>',
+  '</VALIDATION_RESULTS>'
+].join('\n');
 
 function escapeXml(value) {
   return String(value)

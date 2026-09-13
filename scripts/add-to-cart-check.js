@@ -18,12 +18,12 @@ await resetValidationResults();
 //#endregion
 
 //#region Dialog handling
-// page.on('dialog', async (dialog) => {
-//   if (dialog.type() === 'alert') {
-//     console.log(`Accepted warning: ${dialog.message()}`);
-//   }
-//   await dialog.accept();
-// });
+page.on('dialog', async (dialog) => {
+  if (dialog.type() === 'alert') {
+    console.log(`Accepted warning: ${dialog.message()}`);
+  }
+  await dialog.accept();
+});
 //#endregion
 
 //#region Add-to-cart validation
@@ -33,14 +33,10 @@ try {
   await page.getByPlaceholder('Password').fill('secret_sauce');
   await page.getByRole('button', { name: 'Login', exact: true }).click();
 
-  // const okButton = page.getByRole('button', { name: 'OK', exact: true });
-  // if (await okButton.count()) {
-  //   await okButton.first().click();
-  // }
-
-  // await page.getByRole('button', { name: 'Add to cart', exact: true }).first().click();
-
-  // await new Promise((resolve) => setTimeout(resolve, 5000));
+  const okButton = page.getByRole('button', { name: 'OK', exact: true });
+  if (await okButton.count()) {
+    await okButton.first().click();
+  }
 
   await pageActions.validateByRole('Adds Sauce Labs Backpack to the cart',
     'button',
@@ -68,7 +64,7 @@ try {
   await pageActions.validateByRole('Validates Sauce Labs Backpack in the cart',
     null,
     null,
-    page.getByText('Sauce Labs Backpack', { exact: true }),
+    page.getByText('Sauce Labs Backpack1', { exact: true }),
     'Sauce Labs Backpack'
   );
 
