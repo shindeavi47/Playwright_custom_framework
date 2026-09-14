@@ -1,4 +1,6 @@
 import { chromium } from 'playwright';
+import { PageActions } from '../pages/page-actions.js';
+import { resetValidationResults } from '../utils/validation-results.js';
 
 const browser = await chromium.launch({
   headless: false,
@@ -7,6 +9,8 @@ const browser = await chromium.launch({
 });
 
 const page = await browser.newPage();
+const pageActions = new PageActions(page);
+await resetValidationResults();
 
 try {
   await page.goto('https://www.saucedemo.com/', { waitUntil: 'networkidle' });
@@ -17,6 +21,11 @@ try {
   await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for the page to load
   await page.locator('[data-test="product-sort-container"]').selectOption('za');
   await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for sorting to take effect
+  await pageActions.validateListSorted(
+    'Validates products sorted from Z to A',
+    page.locator('[data-test="inventory-item-name"]'),
+    'descending'
+  );
   console.log('Products sorted using Name (Z to A).');
 } finally {
   await browser.close();

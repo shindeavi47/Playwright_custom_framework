@@ -3,7 +3,7 @@
   <VALIDATION>
     <SCENARIO>Adds Sauce Labs Backpack to the cart</SCENARIO>
     <RESUTL>PASS</RESUTL>
-    <TIMELAPS>318 ms</TIMELAPS>
+    <TIMELAPS>398 ms</TIMELAPS>
   </VALIDATION>
   <VALIDATION>
     <SCENARIO>Validates cart badge count</SCENARIO>
@@ -13,11 +13,11 @@
   <VALIDATION>
     <SCENARIO>Opens the shopping cart</SCENARIO>
     <RESUTL>PASS</RESUTL>
-    <TIMELAPS>11 ms</TIMELAPS>
+    <TIMELAPS>7 ms</TIMELAPS>
   </VALIDATION>
   <VALIDATION>
     <SCENARIO>Validates Sauce Labs Backpack in the cart</SCENARIO>
-    <RESUTL>TIMEOUT</RESUTL>
-    <TIMELAPS>30021 ms</TIMELAPS>
+    <RESUTL>PASS</RESUTL>
+    <TIMELAPS>12 ms</TIMELAPS>
   </VALIDATION>
 </VALIDATION_RESULTS>

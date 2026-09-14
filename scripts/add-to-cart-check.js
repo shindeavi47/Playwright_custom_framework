@@ -11,7 +11,9 @@ const browser = await chromium.launch({
   args: ['--start-maximized']
 });
 
-const context = await browser.newContext();
+const context = await browser.newContext({
+  viewport: null
+});
 const page = await context.newPage();
 const pageActions = new PageActions(page);
 await resetValidationResults();
@@ -64,7 +66,7 @@ try {
   await pageActions.validateByRole('Validates Sauce Labs Backpack in the cart',
     null,
     null,
-    page.getByText('Sauce Labs Backpack1', { exact: true }),
+    page.getByText('Sauce Labs Backpack', { exact: true }),
     'Sauce Labs Backpack'
   );
 
