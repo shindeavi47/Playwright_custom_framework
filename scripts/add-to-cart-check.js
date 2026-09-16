@@ -31,6 +31,7 @@ page.on('dialog', async (dialog) => {
 //#region Add-to-cart validation
 try {
   await page.goto('https://www.saucedemo.com/', { waitUntil: 'networkidle' });
+  // await page.pause();
   await page.getByPlaceholder('Username').fill('standard_user');
   await page.getByPlaceholder('Password').fill('secret_sauce');
   await page.getByRole('button', { name: 'Login', exact: true }).click();

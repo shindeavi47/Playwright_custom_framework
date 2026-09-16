@@ -5,7 +5,10 @@ const browser = await chromium.launch({
   args: ['--start-maximized']
 });
 
-const page = await browser.newPage();
+const context = await browser.newContext({
+  viewport: null
+});
+const page = await context.newPage();
 await page.goto('https://www.saucedemo.com/', { waitUntil: 'networkidle' });
 await new Promise((resolve) => setTimeout(resolve, 5000));
 
