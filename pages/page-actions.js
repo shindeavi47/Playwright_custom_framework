@@ -75,6 +75,50 @@ export class PageActions {
     }
   }
 
+  async validateNumericListSorted(scenario, elementsToCheck, order = 'ascending', timeoutMs = 30000) {
+    let result = 'FAIL';
+    const startedAt = Date.now();
+    try {
+      if (!elementsToCheck || typeof elementsToCheck.allTextContents !== 'function') {
+        throw new Error('A locator is required for elementsToCheck.');
+      }
+      if (!['ascending', 'descending'].includes(order)) {
+        throw new Error('Order must be either "ascending" or "descending".');
+      }
+
+      const itemValues = (await elementsToCheck.allTextContents())
+        .map((item) => Number.parseFloat(item.replace('$', '').trim()));
+
+      if (itemValues.some((item) => Number.isNaN(item))) {
+        throw new Error('All values must be valid numbers.');
+      }
+
+      const isSorted = itemValues.every((currentItem, index) => {
+        if (index === 0) {
+          return true;
+        }
+
+        const previousItem = itemValues[index - 1];
+        return order === 'ascending'
+          ? previousItem <= currentItem
+          : previousItem >= currentItem;
+      });
+
+      result = isSorted ? 'PASS' : 'FAIL';
+      console.log(
+        result === 'PASS'
+          ? `Validation passed for scenario "${scenario}".`
+          : `Validation failed for scenario "${scenario}". Items are not sorted in ${order} order.`
+      );
+      return result === 'PASS';
+    } catch (error) {
+      console.error(`Validation error for scenario "${scenario}":`, error);
+      result = 'ERROR';
+    } finally {
+      await this.writeValidationResult(scenario, result, startedAt, timeoutMs);
+    }
+  }
+
   async writeValidationResult(scenario, result, startedAt, timeoutMs = 30000) {
     const elapsedMs = Date.now() - startedAt;
     const finalResult = elapsedMs >= timeoutMs ? 'TIMEOUT' : result;

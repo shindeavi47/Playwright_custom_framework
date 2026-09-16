@@ -8,7 +8,10 @@ const browser = await chromium.launch({
   args: ['--start-maximized']
 });
 
-const page = await browser.newPage();
+const context = await browser.newContext({
+  viewport: null
+});
+const page = await context.newPage();
 const pageActions = new PageActions(page);
 await resetValidationResults();
 
