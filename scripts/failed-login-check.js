@@ -1,4 +1,7 @@
 import { chromium } from 'playwright';
+import { PageActions } from '../pages/page-actions.js';
+import { LoginPage } from '../pages/login-page.js';
+import { resetValidationResults } from '../utils/validation-results.js';
 
 const browser = await chromium.launch({
   headless: false,
@@ -9,15 +12,20 @@ const context = await browser.newContext({
   viewport: null
 });
 const page = await context.newPage();
+const pageActions = new PageActions(page);
+const loginPage = new LoginPage(page);
+await resetValidationResults();
+
 await page.goto('https://www.saucedemo.com/', { waitUntil: 'networkidle' });
-await new Promise((resolve) => setTimeout(resolve, 5000));
+await new Promise((resolve) => setTimeout(resolve, 2000));
+await page.pause();
 
-await page.locator('#user-name').fill('locked_out_user');
-await page.locator('#password').fill('secret_sauce');
-await page.locator('#login-button').click();
+await loginPage.login('locked_out_user', 'secret_sauce');
 
-await page.locator('[data-test="error"]').waitFor();
-const errorMessage = (await page.locator('[data-test="error"]').textContent()).trim();
+const errorLocator = page.locator('[data-test="error"]');
+await errorLocator.waitFor();
+await pageActions.validateByRole('Validates failed login', null, null, errorLocator, 'Epic sadface: Sorry, this user has been locked out.');
+const errorMessage = (await errorLocator.textContent()).trim();
 
 if (page.url().includes('/inventory.html') || !errorMessage) {
   throw new Error('Login unexpectedly succeeded.');

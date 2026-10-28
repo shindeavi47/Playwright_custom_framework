@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { addValidationResult } from '../utils/validation-results.js';
 
 export class PageActions {
@@ -5,8 +6,7 @@ export class PageActions {
     this.page = page;
   }
 
-  async validateByRole(scenario, roleType, roleName, elementToCheck, elementValue, timeoutMs = 30000,
-  ) {
+  async validateByRole(scenario, roleType, roleName, elementToCheck, elementValue, timeoutMs = 30000) {
     let result = 'FAIL';
     const startedAt = Date.now();
     try {
@@ -21,14 +21,17 @@ export class PageActions {
         await this.page.getByRole(roleType, { name: roleName, exact: true }).first().click({ timeout: timeoutMs });
       }
 
-      const actualValue = (await elementToCheck.textContent({ timeout: timeoutMs })).trim();
-      result = actualValue === elementValue ? 'PASS' : 'FAIL';
-      console.log(
-        result === 'PASS'
-          ? `Validation passed for scenario "${scenario}".`
-          : `Validation failed for scenario "${scenario}". Expected "${elementValue}" for "${elementToCheck}" but found "${actualValue}".`
-      );
-      return true;
+      try {
+        const expectedValue = typeof elementValue === 'number' ? elementValue.toString() : elementValue;
+        await expect(elementToCheck).toHaveText(expectedValue);
+        result = 'PASS';
+        console.log(`Validation passed for scenario "${scenario}".`);
+        return true;
+      } catch (error) {
+        result = 'FAIL';
+        console.error(`Validation failed for scenario "${scenario}".`, error);
+        return false;
+      }
     } catch (error) {
       console.error(`Validation error for scenario "${scenario}":`, error);
       result = 'ERROR';
@@ -50,15 +53,12 @@ export class PageActions {
 
       const itemTexts = (await elementsToCheck.allTextContents()).map((item) => item.trim());
       console.log(`Items to check for sorting: ${itemTexts.join(', ')}`);
-      const isSorted = itemTexts.every((currentItem, index) => {
-        if (index === 0) {
-          return true;
-        }
 
-        const previousItem = itemTexts[index - 1];
-        const comparison = previousItem.localeCompare(currentItem);
-        return order === 'ascending' ? comparison <= 0 : comparison >= 0;
-      });
+      const sortedTexts = [...itemTexts].sort((a, b) => a.localeCompare(b));
+      if (order === 'descending') {
+        sortedTexts.reverse();
+      }
+      const isSorted = JSON.stringify(itemTexts) === JSON.stringify(sortedTexts);
 
       result = isSorted ? 'PASS' : 'FAIL';
       console.log(
@@ -93,16 +93,10 @@ export class PageActions {
         throw new Error('All values must be valid numbers.');
       }
 
-      const isSorted = itemValues.every((currentItem, index) => {
-        if (index === 0) {
-          return true;
-        }
-
-        const previousItem = itemValues[index - 1];
-        return order === 'ascending'
-          ? previousItem <= currentItem
-          : previousItem >= currentItem;
-      });
+      const sortedValues = [...itemValues].sort((a, b) =>
+        order === 'ascending' ? a - b : b - a
+      );
+      const isSorted = JSON.stringify(itemValues) === JSON.stringify(sortedValues);
 
       result = isSorted ? 'PASS' : 'FAIL';
       console.log(
