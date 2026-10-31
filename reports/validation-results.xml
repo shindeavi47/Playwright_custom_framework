@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <VALIDATION_RESULTS>
   <VALIDATION>
-    <SCENARIO>Validates products sorted from Z to A</SCENARIO>
+    <SCENARIO>Double-click Copy Text action</SCENARIO>
     <RESUTL>PASS</RESUTL>
-    <TIMELAPS>122 ms</TIMELAPS>
+    <TIMELAPS>230 ms</TIMELAPS>
+  </VALIDATION>
+  <VALIDATION>
+    <SCENARIO>Double-click copies Field1 into Field2</SCENARIO>
+    <RESUTL>PASS</RESUTL>
+    <TIMELAPS>50 ms</TIMELAPS>
   </VALIDATION>
 </VALIDATION_RESULTS>

@@ -7,7 +7,12 @@
   "directories": {
     "test": "tests"
   },
-  "scripts": {},
+  "scripts": {
+    "automation-practice:01": "node scripts/01-page-load.js",
+    "automation-practice:checkbox": "node scripts/05-checkbox.js",
+    "automation-practice:table": "node scripts/10-static-table.js",
+    "automation-practice:alert": "node scripts/13-simple-alert.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/shindeavi47/Playwright_custom_framework.git"

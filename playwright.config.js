@@ -1,6 +1,14 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
 
+// Central trace settings for standalone scripts under ./scripts.
+export const standaloneTrace = {
+  mode: 'on', // 'on' | 'off'
+  screenshots: true,
+  snapshots: true,
+  sources: true,
+};
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -30,7 +38,7 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'on',
   },
 
   /* Configure projects for major browsers */
