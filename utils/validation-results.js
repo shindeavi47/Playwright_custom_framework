@@ -1,7 +1,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const reportPath = path.resolve('../reports', 'validation-results.xml');
+const reportPath = fileURLToPath(new URL('../reports/validation-results.xml', import.meta.url));
 const emptyReport = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<VALIDATION_RESULTS>',

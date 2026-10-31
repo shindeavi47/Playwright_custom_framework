@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium } from '../utils/standalone-playwright.js';
 
 const screenShotPath = "../reports/screenshots/example_screenshot.png";
 

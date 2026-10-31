@@ -1,11 +1,12 @@
 //#region Imports
-import { chromium } from 'playwright';
+import { chromium } from '../utils/standalone-playwright.js';
 import { PageActions } from '../pages/page-actions.js';
 import { LoginPage } from '../pages/login-page.js';
 import { resetValidationResults } from '../utils/validation-results.js';
 //#endregion
 
 //#region Browser and page setup
+//#region Browser setup
 const browser = await chromium.launch({
   headless: false,
   channel: 'chrome',
@@ -15,13 +16,18 @@ const browser = await chromium.launch({
 const context = await browser.newContext({
   viewport: null
 });
+//#endregion
+//#region Navigation and element handling
 const page = await context.newPage();
 //#endregion
 
 //#region Page actions and login page instances
 const pageActions = new PageActions(page);
 const loginPage = new LoginPage(page);
+// Reset the XML report so each script starts with a clean validation result set.
+//#region Validation setup
 await resetValidationResults();
+//#endregion
 //#endregion
 
 //#region Dialog handling
@@ -35,6 +41,7 @@ page.on('dialog', async (dialog) => {
 
 //#region Add-to-cart validation
 try {
+  // Navigate to the practice page; the page DOM is waited for before element actions.
   await page.goto('https://www.saucedemo.com/', { waitUntil: 'networkidle' });
   // await page.pause();
   await loginPage.login('standard_user', 'secret_sauce');
